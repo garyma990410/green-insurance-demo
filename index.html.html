@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>綠色車險生態圈 · 創新提案原型</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ── DESIGN TOKENS ─────────────────────────────────────── */
+:root{
+  --font-body:'Noto Sans TC','Inter',sans-serif;
+  --text-xs:clamp(0.75rem,0.7rem + 0.2vw,0.8rem);
+  --text-sm:clamp(0.8rem,0.75rem + 0.25vw,0.9rem);
+  --text-base:clamp(0.9rem,0.85rem + 0.25vw,1rem);
+  --text-lg:clamp(1rem,0.9rem + 0.5vw,1.2rem);
+  --text-xl:clamp(1.2rem,1rem + 0.8vw,1.5rem);
+  --text-2xl:clamp(1.5rem,1.1rem + 1.5vw,2rem);
+  --space-1:.25rem;--space-2:.5rem;--space-3:.75rem;--space-4:1rem;
+  --space-5:1.25rem;--space-6:1.5rem;--space-8:2rem;--space-10:2.5rem;
+  --space-12:3rem;--space-16:4rem;
+  --radius-sm:.375rem;--radius-md:.5rem;--radius-lg:.75rem;
+  --radius-xl:1rem;--radius-2xl:1.5rem;--radius-full:9999px;
+  --trans:180ms cubic-bezier(0.16,1,0.3,1);
+}
+/* ── DARK THEME (default) ──────────────────────────────── */
+:root,[data-theme="dark"]{
+  --bg:#0f1117;
+  --surface:#161920;
+  --surface-2:#1c2029;
+  --surface-3:#222632;
+  --border:rgba(255,255,255,.07);
+  --border-strong:rgba(255,255,255,.12);
+  --text:#e2e8f0;
+  --text-muted:#8892a4;
+  --text-faint:#4a5568;
+  --green:#34d399;
+  --green-dim:#1a3d2e;
+  --green-mid:#166534;
+  --blue:#60a5fa;
+  --blue-dim:#1e3a5f;
+  --gold:#fbbf24;
+  --gold-dim:#3d2f0a;
+  --teal:#22d3ee;
+  --teal-dim:#0c3040;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.4);
+  --shadow-md:0 4px 16px rgba(0,0,0,.5);
+  --shadow-lg:0 12px 40px rgba(0,0,0,.6);
+}
+[data-theme="light"]{
+  --bg:#f4f7f5;
+  --surface:#fff;
+  --surface-2:#f9fbfa;
+  --surface-3:#f1f5f2;
+  --border:rgba(0,0,0,.08);
+  --border-strong:rgba(0,0,0,.14);
+  --text:#1a202c;
+  --text-muted:#4a5568;
+  --text-faint:#a0aec0;
+  --green:#059669;
+  --green-dim:#d1fae5;
+  --green-mid:#a7f3d0;
+  --blue:#2563eb;
+  --blue-dim:#dbeafe;
+  --gold:#d97706;
+  --gold-dim:#fef3c7;
+  --teal:#0891b2;
+  --teal-dim:#cffafe;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.06);
+  --shadow-md:0 4px 16px rgba(0,0,0,.08);
+  --shadow-lg:0 12px 40px rgba(0,0,0,.12);
+}
+/* ── RESET & BASE ──────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font-body);font-size:var(--text-base);
+  color:var(--text);background:var(--bg);min-height:100dvh;line-height:1.6}
+img{display:block;max-width:100%;height:auto}
+button{cursor:pointer;font:inherit;border:none;background:none;color:inherit}
+canvas{max-width:100%}
+
+/* ── APP SHELL ─────────────────────────────────────────── */
+.app-shell{display:flex;min-height:100dvh}
+/* sidebar */
+.sidebar{width:220px;flex-shrink:0;background:var(--surface);
+  border-right:1px solid var(--border);display:flex;flex-direction:column;
+  position:sticky;top:0;height:100dvh;z-index:10}
+.sidebar-logo{display:flex;align-items:center;gap:var(--space-3);
+  padding:var(--space-5) var(--space-5);border-bottom:1px solid var(--border)}
+.logo-mark{width:36px;height:36px;border-radius:var(--radius-lg);
+  background:linear-gradient(135deg,#059669,#0891b2);
+  display:grid;place-items:center;font-size:18px;flex-shrink:0}
+.logo-text{font-size:var(--text-sm);font-weight:700;line-height:1.3;color:var(--text)}
+.nav-section{padding:var(--space-4) var(--space-3)}
+.nav-label{font-size:var(--text-xs);color:var(--text-faint);
+  font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  padding:0 var(--space-3) var(--space-2)}
+.nav-item{display:flex;align-items:center;gap:var(--space-3);
+  padding:var(--space-2) var(--space-3);border-radius:var(--radius-lg);
+  font-size:var(--text-sm);font-weight:500;color:var(--text-muted);
+  cursor:pointer;transition:all var(--trans);margin-bottom:2px}
+.nav-item:hover{background:var(--surface-2);color:var(--text)}
+.nav-item.active{background:var(--green-dim);color:var(--green);font-weight:700}
+.nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.sidebar-footer{margin-top:auto;padding:var(--space-4);
+  border-top:1px solid var(--border)}
+.theme-btn{width:100%;display:flex;align-items:center;gap:var(--space-2);
+  padding:var(--space-2) var(--space-3);border-radius:var(--radius-lg);
+  font-size:var(--text-xs);color:var(--text-muted);
+  transition:all var(--trans)}
+.theme-btn:hover{background:var(--surface-2);color:var(--text)}
+
+/* main */
+.main{flex:1;overflow:auto;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;justify-content:space-between;
+  gap:var(--space-4);padding:var(--space-4) var(--space-6);
+  background:var(--surface);border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:5}
+.topbar-title{font-size:var(--text-lg);font-weight:700}
+.topbar-actions{display:flex;align-items:center;gap:var(--space-2)}
+.btn{display:inline-flex;align-items:center;gap:var(--space-2);
+  padding:var(--space-2) var(--space-4);border-radius:var(--radius-lg);
+  font-size:var(--text-sm);font-weight:600;transition:all var(--trans)}
+.btn-primary{background:var(--green);color:#0a1a14}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-ghost{background:var(--surface-2);color:var(--text-muted);
+  border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--border-strong);color:var(--text)}
+.page-content{padding:var(--space-6);flex:1}
+
+/* ── VIEWS ─────────────────────────────────────────────── */
+.view{display:none;opacity:0;transform:translateY(8px);
+  transition:opacity 300ms ease,transform 300ms ease}
+.view.active{display:block;opacity:1;transform:translateY(0)}
+
+/* ── DEVICE WRAPPER ────────────────────────────────────── */
+.device-layout{display:grid;grid-template-columns:360px 1fr;
+  gap:var(--space-6);align-items:start}
+.device-frame{background:#0a0a0f;border-radius:42px;padding:12px 12px 18px;
+  box-shadow:0 0 0 1px rgba(255,255,255,.08),
+    0 24px 64px rgba(0,0,0,.7),
+    inset 0 0 0 1px rgba(255,255,255,.04);
+  position:relative}
+.device-frame::before{content:"";display:block;width:80px;height:6px;
+  background:rgba(255,255,255,.15);border-radius:99px;
+  margin:0 auto var(--space-2)}
+.device-screen{background:var(--screen-bg,#0f1117);border-radius:32px;
+  overflow:hidden;min-height:800px;position:relative}
+.screen-status{background:rgba(0,0,0,.3);color:rgba(255,255,255,.7);
+  padding:8px 18px;font-size:11px;display:flex;
+  justify-content:space-between;letter-spacing:.03em}
+.screen-body{height:calc(800px - 28px);overflow-y:auto;
+  scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.screen-body::-webkit-scrollbar{width:3px}
+.screen-body::-webkit-scrollbar-thumb{background:var(--border)}
+
+/* ── LOGIN SCREEN ──────────────────────────────────────── */
+.login-wrap{min-height:760px;display:flex;flex-direction:column;
+  background:linear-gradient(180deg,#0b2e1c 0%,#0f3d24 35%,var(--bg) 35%)}
+.login-top{padding:var(--space-8) var(--space-5) var(--space-6);color:#fff}
+.login-icon{width:64px;height:64px;border-radius:20px;
+  background:linear-gradient(135deg,#22c55e,#06b6d4);
+  display:grid;place-items:center;font-size:30px;
+  box-shadow:0 12px 28px rgba(34,197,94,.3);margin-bottom:var(--space-4)}
+.login-top h2{font-size:var(--text-xl);font-weight:900;margin-bottom:4px}
+.login-top p{font-size:var(--text-xs);opacity:.85;line-height:1.6}
+.login-card{margin:0 var(--space-4);background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--radius-2xl);
+  padding:var(--space-5);box-shadow:var(--shadow-md)}
+.field{margin-bottom:var(--space-4)}
+.field-label{display:block;font-size:var(--text-xs);color:var(--text-muted);
+  font-weight:600;margin-bottom:6px}
+.field-input{width:100%;padding:10px var(--space-3);
+  background:var(--surface-2);border:1px solid var(--border);
+  border-radius:var(--radius-lg);font-size:var(--text-sm);
+  color:var(--text);transition:border var(--trans)}
+.field-input:focus{outline:none;border-color:var(--green)}
+.consent-row{display:flex;align-items:flex-start;gap:var(--space-2);
+  margin-bottom:var(--space-4);font-size:var(--text-xs);color:var(--text-muted)}
+.consent-row input[type=checkbox]{margin-top:2px;accent-color:var(--green)}
+.login-btn{width:100%;padding:12px;border-radius:var(--radius-xl);
+  background:linear-gradient(135deg,#22c55e,#06b6d4);
+  color:#051a0e;font-weight:800;font-size:var(--text-sm);
+  cursor:pointer;border:none;transition:all var(--trans);
+  box-shadow:0 8px 20px rgba(34,197,94,.2)}
+.login-btn:hover{transform:translateY(-1px);opacity:.95}
+.quick-row{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2);margin-top:var(--space-3)}
+.quick-btn{padding:8px 4px;border:1px solid var(--border);
+  border-radius:var(--radius-lg);background:var(--surface-2);
+  font-size:var(--text-xs);color:var(--text-muted);
+  cursor:pointer;transition:all var(--trans)}
+.quick-btn:hover{border-color:var(--green);color:var(--green)}
+
+/* ── APP SCREEN COMMON ─────────────────────────────────── */
+.app-header{padding:var(--space-4) var(--space-4) var(--space-3);
+  background:linear-gradient(135deg,#064e2e,#0c4a6e)}
+.app-header.pay{background:linear-gradient(135deg,#0c2a6e,#0a404f)}
+.app-header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.app-header h3{font-size:var(--text-lg);font-weight:900;color:#fff}
+.app-header .sub{font-size:var(--text-xs);color:rgba(255,255,255,.8)}
+.app-header .avatar{width:32px;height:32px;border-radius:50%;
+  background:rgba(255,255,255,.2);display:grid;place-items:center;font-size:15px}
+.inner-pad{padding:var(--space-3) var(--space-4)}
+.stack{display:grid;gap:var(--space-3)}
+
+/* cards */
+.c{background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-xl);padding:var(--space-4);
+  box-shadow:var(--shadow-sm)}
+.c-title{font-size:var(--text-sm);font-weight:800;margin-bottom:var(--space-3)}
+/* kpi row */
+.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-2)}
+.kpi-box{background:var(--surface-2);border-radius:var(--radius-lg);
+  padding:var(--space-3);text-align:center;border:1px solid var(--border)}
+.kpi-val{font-size:var(--text-lg);font-weight:900;color:var(--green);
+  font-variant-numeric:tabular-nums}
+.kpi-lab{font-size:var(--text-xs);color:var(--text-muted);margin-top:2px}
+/* policy card */
+.policy-card{background:linear-gradient(135deg,#0f2d55,#0f4c2b);
+  border-radius:var(--radius-xl);padding:var(--space-4);
+  border:1px solid rgba(255,255,255,.08);position:relative;overflow:hidden}
+.policy-card::after{content:"";position:absolute;right:-24px;top:-24px;
+  width:110px;height:110px;border-radius:50%;
+  background:rgba(255,255,255,.06)}
+.policy-card .tag{font-size:var(--text-xs);color:rgba(255,255,255,.7);margin-bottom:4px}
+.policy-card .name{font-size:var(--text-lg);font-weight:900;color:#fff}
+.policy-card .exp{font-size:var(--text-xs);color:rgba(255,255,255,.7);margin-top:4px}
+.policy-meta{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2);margin-top:var(--space-3)}
+.pm-box{background:rgba(255,255,255,.1);border-radius:var(--radius-lg);padding:var(--space-2) var(--space-3)}
+.pm-label{font-size:var(--text-xs);color:rgba(255,255,255,.7)}
+.pm-val{font-size:var(--text-base);font-weight:800;color:#fff;margin-top:2px}
+/* progress */
+.prog-row{display:flex;justify-content:space-between;
+  font-size:var(--text-xs);color:var(--text-muted);margin-bottom:4px}
+.prog-bar{height:8px;background:var(--surface-3);
+  border-radius:var(--radius-full);overflow:hidden;margin-bottom:var(--space-3)}
+.prog-fill{height:100%;border-radius:var(--radius-full);
+  background:linear-gradient(90deg,#22c55e,#06b6d4)}
+/* list rows */
+.lrow{display:flex;justify-content:space-between;align-items:center;
+  gap:var(--space-2);padding:var(--space-2) 0;
+  border-bottom:1px dashed var(--border)}
+.lrow:last-child{border-bottom:none;padding-bottom:0}
+.lrow-left{font-size:var(--text-xs)}
+.lrow-left strong{display:block;color:var(--text)}
+.lrow-left span{color:var(--text-muted)}
+/* pill */
+.pill{display:inline-flex;align-items:center;
+  padding:3px 10px;border-radius:var(--radius-full);
+  font-size:var(--text-xs);font-weight:700;white-space:nowrap}
+.pill-green{background:var(--green-dim);color:var(--green)}
+.pill-blue{background:var(--blue-dim);color:var(--blue)}
+.pill-gold{background:var(--gold-dim);color:var(--gold)}
+.pill-teal{background:var(--teal-dim);color:var(--teal)}
+/* promo item */
+.promo-item{display:flex;justify-content:space-between;align-items:center;
+  gap:var(--space-3);padding:var(--space-3);
+  background:var(--surface-2);border:1px solid var(--border);
+  border-radius:var(--radius-xl);transition:all var(--trans)}
+.promo-item:hover{border-color:var(--border-strong)}
+.promo-title{font-size:var(--text-sm);font-weight:700;color:var(--text)}
+.promo-sub{font-size:var(--text-xs);color:var(--text-muted);margin-top:2px}
+.promo-btn{padding:6px 12px;background:var(--green);color:#061a0e;
+  border-radius:var(--radius-lg);font-size:var(--text-xs);
+  font-weight:800;border:none;cursor:pointer;white-space:nowrap;
+  transition:all var(--trans)}
+.promo-btn:hover{opacity:.9}
+.promo-btn.ghost{background:var(--surface-3);color:var(--text-muted)}
+.promo-btn.ghost:hover{color:var(--text)}
+
+/* ── RIGHT PANEL CARDS ─────────────────────────────────── */
+.panel{background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-2xl);padding:var(--space-5);
+  box-shadow:var(--shadow-sm)}
+.panel h3{font-size:var(--text-lg);font-weight:800;margin-bottom:var(--space-2)}
+.panel p{font-size:var(--text-sm);color:var(--text-muted);
+  line-height:1.7;margin-bottom:var(--space-4);max-width:55ch}
+.two-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)}
+.feat{background:var(--surface-2);border:1px solid var(--border);
+  border-radius:var(--radius-xl);padding:var(--space-4)}
+.feat strong{display:block;font-size:var(--text-sm);
+  font-weight:700;margin-bottom:var(--space-2)}
+.feat ul{padding-left:var(--space-4);color:var(--text-muted);
+  font-size:var(--text-xs);line-height:1.8}
+.notice{background:var(--surface-2);border:1px solid var(--border-strong);
+  border-radius:var(--radius-xl);padding:var(--space-3) var(--space-4);
+  font-size:var(--text-xs);color:var(--text-muted);line-height:1.7}
+.notice strong{color:var(--gold)}
+
+/* ── DASHBOARD ─────────────────────────────────────────── */
+.dash-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-4);
+  margin-bottom:var(--space-5)}
+.metric{background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-xl);padding:var(--space-4);
+  box-shadow:var(--shadow-sm)}
+.metric-label{font-size:var(--text-xs);color:var(--text-muted);font-weight:600}
+.metric-val{font-size:var(--text-2xl);font-weight:900;margin:var(--space-1) 0;
+  font-variant-numeric:tabular-nums}
+.metric-val.green{color:var(--green)}
+.metric-val.blue{color:var(--blue)}
+.metric-val.teal{color:var(--teal)}
+.metric-val.gold{color:var(--gold)}
+.metric-delta{font-size:var(--text-xs);color:var(--text-faint)}
+.metric-delta.up{color:var(--green)}
+.dash-charts{display:grid;grid-template-columns:1.25fr .75fr;gap:var(--space-4);
+  margin-bottom:var(--space-4)}
+.chart-card{background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-xl);padding:var(--space-4) var(--space-5);
+  box-shadow:var(--shadow-sm)}
+.chart-title{font-size:var(--text-base);font-weight:800;margin-bottom:2px}
+.chart-sub{font-size:var(--text-xs);color:var(--text-muted);margin-bottom:var(--space-4)}
+.chart-wrap{position:relative;height:240px}
+.dash-bottom{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4)}
+/* table */
+.data-table{width:100%;border-collapse:collapse;font-size:var(--text-xs);
+  font-variant-numeric:tabular-nums}
+.data-table th{font-size:var(--text-xs);color:var(--text-faint);
+  font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  padding:var(--space-2) var(--space-3);
+  border-bottom:1px solid var(--border);text-align:left}
+.data-table td{padding:var(--space-2) var(--space-3);
+  border-bottom:1px solid var(--border);color:var(--text)}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:var(--surface-2)}
+/* formula box */
+.formula{background:var(--surface-2);border:1px dashed var(--border-strong);
+  border-radius:var(--radius-xl);padding:var(--space-4);
+  font-size:var(--text-xs);line-height:1.9;color:var(--text-muted);
+  margin-bottom:var(--space-3)}
+.formula strong{color:var(--green);font-size:var(--text-sm)}
+/* export */
+.export-btn{display:inline-flex;align-items:center;gap:var(--space-2);
+  padding:var(--space-2) var(--space-4);background:var(--surface-2);
+  border:1px solid var(--border-strong);border-radius:var(--radius-lg);
+  font-size:var(--text-xs);font-weight:700;color:var(--teal);
+  cursor:pointer;transition:all var(--trans)}
+.export-btn:hover{background:var(--teal-dim);border-color:var(--teal)}
+.section-header{display:flex;justify-content:space-between;
+  align-items:center;margin-bottom:var(--space-4);gap:var(--space-3);flex-wrap:wrap}
+.section-header h3{font-size:var(--text-lg);font-weight:800}
+
+/* ── MODAL ─────────────────────────────────────────────── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);
+  backdrop-filter:blur(6px);display:none;place-items:center;
+  padding:var(--space-4);z-index:50}
+.modal-bg.show{display:grid}
+.modal{width:min(480px,100%);background:var(--surface);
+  border:1px solid var(--border-strong);border-radius:var(--radius-2xl);
+  box-shadow:var(--shadow-lg);overflow:hidden;
+  animation:slideUp .3s cubic-bezier(.16,1,.3,1)}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+.modal-head{display:flex;justify-content:space-between;align-items:center;
+  padding:var(--space-4) var(--space-5);border-bottom:1px solid var(--border)}
+.modal-head h4{font-size:var(--text-base);font-weight:800}
+.modal-close{width:28px;height:28px;border-radius:var(--radius-md);
+  background:var(--surface-2);display:grid;place-items:center;
+  font-size:16px;cursor:pointer;transition:all var(--trans)}
+.modal-close:hover{background:var(--surface-3);color:var(--text)}
+.modal-body{padding:var(--space-4) var(--space-5)}
+.modal-row{display:flex;justify-content:space-between;align-items:flex-start;
+  gap:var(--space-3);padding:var(--space-3) 0;
+  border-bottom:1px solid var(--border)}
+.modal-row:last-child{border-bottom:none}
+.modal-row-icon{width:36px;height:36px;border-radius:var(--radius-lg);
+  display:grid;place-items:center;font-size:18px;flex-shrink:0}
+.modal-row strong{display:block;font-size:var(--text-sm);font-weight:700;margin-bottom:2px}
+.modal-row span{font-size:var(--text-xs);color:var(--text-muted)}
+.modal-foot{padding:var(--space-3) var(--space-5) var(--space-4);
+  display:flex;justify-content:flex-end;gap:var(--space-2)}
+
+/* ── FADE ANIMATION ────────────────────────────────────── */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.anim-fade{animation:fadeIn .35s cubic-bezier(.16,1,.3,1) both}
+
+/* ── RESPONSIVE ────────────────────────────────────────── */
+@media(max-width:1080px){
+  .dash-kpis{grid-template-columns:repeat(2,1fr)}
+  .dash-charts,.dash-bottom{grid-template-columns:1fr}
+  .device-layout{grid-template-columns:1fr}
+  .device-frame{max-width:380px;margin:0 auto}
+}
+@media(max-width:780px){
+  .sidebar{display:none}
+  .two-grid{grid-template-columns:1fr}
+  .kpi-row{grid-template-columns:1fr 1fr}
+  .policy-meta{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">🌿</div>
+    <div class="logo-text">Green Mobility<br>Insurance</div>
+  </div>
+  <nav class="nav-section">
+    <div class="nav-label">主要功能</div>
+    <div class="nav-item active" data-view="insurer" onclick="switchView('insurer',this)">
+      <span class="nav-icon">🛡️</span><span>客戶端保險 APP</span>
+    </div>
+    <div class="nav-item" data-view="wallet" onclick="switchView('wallet',this)">
+      <span class="nav-icon">💳</span><span>行動支付 APP</span>
+    </div>
+    <div class="nav-item" data-view="dashboard" onclick="switchView('dashboard',this)">
+      <span class="nav-icon">📊</span><span>PCAF 後台儀表板</span>
+    </div>
+  </nav>
+  <div class="nav-section" style="padding-top:0">
+    <div class="nav-label">說明</div>
+    <div class="nav-item" onclick="document.getElementById('modal').classList.add('show')">
+      <span class="nav-icon">🔔</span><span>查看推播彈窗</span>
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">
+      <span>🌙</span><span>切換亮色模式</span>
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-title" id="topbarTitle">客戶端保險 APP</div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal').classList.add('show')">🔔 推播示意</button>
+      <button class="btn btn-primary" id="exportTopBtn" style="display:none" onclick="exportCSV()">↓ 匯出 PCAF CSV</button>
+    </div>
+  </header>
+
+  <div class="page-content">
+
+  <!-- ── VIEW: INSURER APP ── -->
+  <div class="view active anim-fade" id="view-insurer">
+    <div class="device-layout">
+      <div class="device-frame">
+        <div class="device-screen" style="--screen-bg:#0d1117">
+          <div class="screen-status"><span>9:41</span><span>5G ▪ 84%</span></div>
+          <div class="screen-body">
+            <!-- LOGIN -->
+            <div id="loginScreen" class="login-wrap">
+              <div class="login-top">
+                <div class="login-icon">🛡️</div>
+                <h2>歡迎回來</h2>
+                <p>登入綠色車險，查看 UBI 里程、<br>點數、保單與推薦保障。</p>
+              </div>
+              <div class="login-card">
+                <div class="field">
+                  <label class="field-label">手機號碼</label>
+                  <input class="field-input" value="0912-345-678" readonly/>
+                </div>
+                <div class="field">
+                  <label class="field-label">一次性驗證碼 (OTP)</label>
+                  <input class="field-input" id="otpField" value="" placeholder="輸入 6 位數驗證碼"/>
+                </div>
+                <div class="consent-row">
+                  <input type="checkbox" id="consentChk" checked/>
+                  <label for="consentChk">已同意位置數據蒐集與跨業共享授權（個資法第 19 條 Opt-in）</label>
+                </div>
+                <button class="login-btn" onclick="doLogin()">登入保單頁面 →</button>
+                <div class="quick-row">
+                  <button class="quick-btn" onclick="fillAndLogin('474829')">👤 測試保戶 A</button>
+                  <button class="quick-btn" onclick="fillAndLogin('882031')">🏆 低碳模範戶</button>
+                </div>
+              </div>
+            </div>
+            <!-- MAIN APP (hidden until login) -->
+            <div id="appScreen" style="display:none">
+              <div class="app-header">
+                <div class="app-header-top">
+                  <h3>綠色車險</h3>
+                  <div class="avatar">👤</div>
+                </div>
+                <div class="sub">王小綠 ▪ 白金會員 ▪ 本月點數 2,480</div>
+              </div>
+              <div class="inner-pad stack">
+                <!-- policy card -->
+                <div class="policy-card">
+                  <div class="tag">車險主保單</div>
+                  <div class="name">王小綠</div>
+                  <div class="exp">保單有效至 2027 / 03 / 31</div>
+                  <div class="policy-meta">
+                    <div class="pm-box"><div class="pm-label">UBI 安全分數</div><div class="pm-val">87</div></div>
+                    <div class="pm-box"><div class="pm-label">本月綠色點數</div><div class="pm-val">2,480</div></div>
+                  </div>
+                </div>
+                <!-- UBI -->
+                <div class="c">
+                  <div class="c-title">本月 UBI 駕駛概況</div>
+                  <div class="kpi-row">
+                    <div class="kpi-box"><div class="kpi-val">286</div><div class="kpi-lab">里程 km</div></div>
+                    <div class="kpi-box"><div class="kpi-val">-18%</div><div class="kpi-lab">較上月</div></div>
+                    <div class="kpi-box"><div class="kpi-val">87</div><div class="kpi-lab">安全分</div></div>
+                  </div>
+                  <div style="margin-top:var(--space-3)">
+                    <div class="prog-row"><span>低碳目標達成率</span><strong>72%</strong></div>
+                    <div class="prog-bar"><div class="prog-fill" style="width:72%"></div></div>
+                  </div>
+                </div>
+                <!-- points -->
+                <div class="c">
+                  <div class="c-title">綠色里程點數明細</div>
+                  <div class="lrow">
+                    <div class="lrow-left"><strong>減少自駕 64 km</strong><span>UBI 行為獎勵</span></div>
+                    <span class="pill pill-blue">+960 點</span>
+                  </div>
+                  <div class="lrow">
+                    <div class="lrow-left"><strong>捷運 / 輕軌 18 次</strong><span>大眾運輸連動</span></div>
+                    <span class="pill pill-blue">+720 點</span>
+                  </div>
+                  <div class="lrow">
+                    <div class="lrow-left"><strong>公車轉乘 12 次</strong><span>大眾運輸連動</span></div>
+                    <span class="pill pill-blue">+540 點</span>
+                  </div>
+                  <div class="lrow">
+                    <div class="lrow-left"><strong>安全駕駛加成</strong><span>本月無事故加成</span></div>
+                    <span class="pill pill-gold">+260 點</span>
+                  </div>
+                </div>
+                <!-- push / cross-sell -->
+                <div class="c">
+                  <div class="c-title">推播與險種推薦</div>
+                  <div class="stack">
+                    <div class="promo-item">
+                      <div><div class="promo-title">🔔 即時點數提醒</div><div class="promo-sub">連續 7 天低碳，明天再得 120 點。</div></div>
+                      <span class="pill pill-green">新</span>
+                    </div>
+                    <div class="promo-item">
+                      <div><div class="promo-title">✈️ 旅平險推薦</div><div class="promo-sub">通勤頻繁，限時加購享 9 折。</div></div>
+                      <button class="promo-btn">加購</button>
+                    </div>
+                    <div class="promo-item">
+                      <div><div class="promo-title">🪖 微型意外險</div><div class="promo-sub">低保費，保障通勤意外。</div></div>
+                      <button class="promo-btn">了解</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- right panel insurer -->
+      <div class="stack">
+        <div class="panel anim-fade">
+          <h3>保險 APP 設計要點</h3>
+          <p>展示登入頁、保單卡、UBI 里程追蹤、即時點數與情境化交叉銷售，直接回應提案中「缺乏客戶互動」與「損率改善」的核心痛點。</p>
+          <div class="two-grid">
+            <div class="feat">
+              <strong>UBI 里程計算</strong>
+              <ul>
+                <li>月里程與上月對比</li>
+                <li>安全分數精算基礎</li>
+                <li>低碳達成率視覺化</li>
+              </ul>
+            </div>
+            <div class="feat">
+              <strong>點數即時回饋</strong>
+              <ul>
+                <li>每次行為立即到帳</li>
+                <li>不等待年度保費折扣</li>
+                <li>連動支付 APP 乘車</li>
+              </ul>
+            </div>
+            <div class="feat">
+              <strong>跨險種推播</strong>
+              <ul>
+                <li>通勤情境推旅平險</li>
+                <li>支付端消費觸發推薦</li>
+                <li>App 月活目標 30%+</li>
+              </ul>
+            </div>
+            <div class="feat">
+              <strong>保單卡設計</strong>
+              <ul>
+                <li>保單狀態一目瞭然</li>
+                <li>UBI 分數與點數並列</li>
+                <li>引導續保與加購</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="notice">
+          <strong>⚠️ 法規提示：</strong>登入時以 Opt-in 方式一次取得位置數據與跨業共享授權，
+          符合個人資料保護法第 19 條合法蒐集要件。點數回饋定性為行銷獎勵而非費率折扣，無需費率審查。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── VIEW: WALLET APP ── -->
+  <div class="view anim-fade" id="view-wallet">
+    <div class="device-layout">
+      <div class="device-frame">
+        <div class="device-screen" style="--screen-bg:#0a0d1a">
+          <div class="screen-status"><span>9:41</span><span>Wi-Fi ▪ 77%</span></div>
+          <div class="screen-body">
+            <div class="app-header pay">
+              <div class="app-header-top">
+                <h3>行動支付</h3>
+                <div class="avatar">💳</div>
+              </div>
+              <div class="sub">乘車里程 ▪ 減碳紀錄 ▪ 點數兌換</div>
+            </div>
+            <div class="inner-pad stack">
+              <div class="c">
+                <div class="c-title">本週綠色通勤</div>
+                <div class="kpi-row">
+                  <div class="kpi-box"><div class="kpi-val" style="color:var(--teal)">54.6</div><div class="kpi-lab">週里程 km</div></div>
+                  <div class="kpi-box"><div class="kpi-val" style="color:var(--green)">8.4</div><div class="kpi-lab">避免 CO₂e kg</div></div>
+                  <div class="kpi-box"><div class="kpi-val" style="color:var(--gold)">1,120</div><div class="kpi-lab">可用點數</div></div>
+                </div>
+              </div>
+              <div class="c">
+                <div class="c-title">大眾運輸搭乘紀錄</div>
+                <div class="lrow">
+                  <div class="lrow-left"><strong>05/19 捷運紅線｜14.2 km</strong><span>09:12 板橋→台北車站</span></div>
+                  <span class="pill pill-green">-2.1 kg</span>
+                </div>
+                <div class="lrow">
+                  <div class="lrow-left"><strong>05/18 公車 168｜8.6 km</strong><span>18:34 返程</span></div>
+                  <span class="pill pill-green">-1.2 kg</span>
+                </div>
+                <div class="lrow">
+                  <div class="lrow-left"><strong>05/17 輕軌 C20→C5｜6.8 km</strong><span>12:05 午休外出</span></div>
+                  <span class="pill pill-green">-0.9 kg</span>
+                </div>
+                <div class="lrow">
+                  <div class="lrow-left"><strong>05/16 捷運橘線｜12.1 km</strong><span>08:52 上班通勤</span></div>
+                  <span class="pill pill-green">-1.8 kg</span>
+                </div>
+              </div>
+              <div class="c">
+                <div class="c-title">點數兌換</div>
+                <div class="stack">
+                  <div class="promo-item">
+                    <div><div class="promo-title">🚌 通勤月票回饋</div><div class="promo-sub">900 點兌換交通金 NT$90</div></div>
+                    <button class="promo-btn">兌換</button>
+                  </div>
+                  <div class="promo-item">
+                    <div><div class="promo-title">🏪 超商折抵券</div><div class="promo-sub">500 點兌換 NT$50</div></div>
+                    <button class="promo-btn">兌換</button>
+                  </div>
+                  <div class="promo-item">
+                    <div><div class="promo-title">🚲 共享運具抵用</div><div class="promo-sub">YouBike、共享電動車</div></div>
+                    <button class="promo-btn ghost">查看</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stack">
+        <div class="panel anim-fade">
+          <h3>支付 APP 的戰略角色</h3>
+          <p>支付端不是附屬模組，而是保險公司擴展日常觸點、補充乘車里程數據、分攤點數補貼成本的核心生態夥伴。</p>
+          <div class="two-grid">
+            <div class="feat">
+              <strong>數據貢獻</strong>
+              <ul>
+                <li>補足保司缺乏的日常活動數據</li>
+                <li>建立基準月與本月對照</li>
+                <li>支撐 PCAF avoided emissions</li>
+              </ul>
+            </div>
+            <div class="feat">
+              <strong>商業互補</strong>
+              <ul>
+                <li>點數導入既有消費生態</li>
+                <li>提升雙邊 App 黏著度</li>
+                <li>分攤點數補貼成本</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="notice">
+          <strong>💡 成本說明：</strong>點數由電子支付業者以「導流費」形式補貼，
+          保險公司以流量換取點數面額，不直接承擔點數成本，這正是第三層平台商業模型的核心設計。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── VIEW: DASHBOARD ── -->
+  <div class="view anim-fade" id="view-dashboard">
+    <div class="section-header">
+      <h3>PCAF IAE 後台儀表板</h3>
+      <button class="export-btn" onclick="exportCSV()">↓ 匯出 PCAF_IAE_Report.csv</button>
+    </div>
+
+    <div class="dash-kpis">
+      <div class="metric">
+        <div class="metric-label">Opt-in 保戶數</div>
+        <div class="metric-val green" data-target="48620">0</div>
+        <div class="metric-delta up">↑ +2,140 本月新增</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">減少自駕里程</div>
+        <div class="metric-val blue">1.82m km</div>
+        <div class="metric-delta up">↑ 相較基準期</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">避免碳排放量</div>
+        <div class="metric-val teal" data-target="268">0</div>
+        <div class="metric-delta">t CO₂e avoided</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">PCAF 揭露品質</div>
+        <div class="metric-val gold">Level 2</div>
+        <div class="metric-delta up">↑ 活動數據驅動</div>
+      </div>
+    </div>
+
+    <div class="dash-charts">
+      <div class="chart-card">
+        <div class="chart-title">月度成效趨勢</div>
+        <div class="chart-sub">綠色獎勵上線後，里程下降幅度與避免排放量同步提升</div>
+        <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">保險公司 ROI</div>
+        <div class="chart-sub">每 1 元點數對應節省理賠成本估算</div>
+        <div class="chart-wrap"><canvas id="roiChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="dash-bottom">
+      <div class="chart-card">
+        <div class="chart-title" style="margin-bottom:var(--space-3)">PCAF IAE 計算卡</div>
+        <div class="formula">
+          <strong>IAE</strong> = 承保車輛活動量 × 排放係數 × 保險歸屬比例<br>
+          示例：286 km × 0.171 kgCO₂e/km × 100% = <strong>48.9 kgCO₂e</strong>
+        </div>
+        <table class="data-table">
+          <thead><tr><th>欄位</th><th>值</th></tr></thead>
+          <tbody>
+            <tr><td>基準月平均自駕里程</td><td>349 km</td></tr>
+            <tr><td>本月平均自駕里程</td><td>286 km</td></tr>
+            <tr><td>減少里程（每人）</td><td>63 km</td></tr>
+            <tr><td>排放係數</td><td>0.171 kgCO₂e/km</td></tr>
+            <tr><td>每人避免排放量</td><td>10.8 kgCO₂e</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title" style="margin-bottom:var(--space-3)">經營指標對照</div>
+        <table class="data-table">
+          <thead><tr><th>指標</th><th>導入前</th><th>導入後示意</th></tr></thead>
+          <tbody>
+            <tr><td>理賠成本指數</td><td>100</td><td><span class="pill pill-green">85</span></td></tr>
+            <tr><td>事故率指數</td><td>100</td><td><span class="pill pill-green">74–80</span></td></tr>
+            <tr><td>App 月活躍率</td><td>3%</td><td><span class="pill pill-teal">30%+</span></td></tr>
+            <tr><td>PCAF 揭露品質</td><td>低階估算</td><td><span class="pill pill-gold">Level 1–2</span></td></tr>
+            <tr><td>點數 ROI</td><td>—</td><td><span class="pill pill-blue">3–5× 理賠節省</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /page-content -->
+</div><!-- /main -->
+</div><!-- /app-shell -->
+
+<!-- PUSH MODAL -->
+<div class="modal-bg" id="modal" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal">
+    <div class="modal-head">
+      <h4>推播通知示意</h4>
+      <button class="modal-close" onclick="document.getElementById('modal').classList.remove('show')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-row">
+        <div class="modal-row-icon" style="background:var(--green-dim)">🎉</div>
+        <div>
+          <strong>恭喜累積 120 點！</strong>
+          <span>連續 7 天低碳通勤達標，即時獎勵已入帳。</span>
+        </div>
+        <span class="pill pill-green">新</span>
+      </div>
+      <div class="modal-row">
+        <div class="modal-row-icon" style="background:var(--blue-dim)">✈️</div>
+        <div>
+          <strong>旅平險推薦</strong>
+          <span>近期通勤頻率高，限時加購享 9 折優惠。</span>
+        </div>
+        <span class="pill pill-blue">推薦</span>
+      </div>
+      <div class="modal-row">
+        <div class="modal-row-icon" style="background:var(--teal-dim)">🌍</div>
+        <div>
+          <strong>PCAF 貢獻提示</strong>
+          <span>本月你已減少排放 10.8 kgCO₂e，相當於種 1 棵樹。</span>
+        </div>
+        <span class="pill pill-teal">ESG</span>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal').classList.remove('show')">稍後提醒</button>
+      <button class="btn btn-primary" onclick="document.getElementById('modal').classList.remove('show')">立即查看</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── THEME ──────────────────────────────────────────────── */
+function toggleTheme(){
+  const h=document.documentElement;
+  const dark=h.getAttribute('data-theme')==='dark';
+  h.setAttribute('data-theme',dark?'light':'dark');
+  document.getElementById('themeBtn').innerHTML=
+    dark?'<span>🌙</span><span>切換暗色模式</span>':'<span>☀️</span><span>切換亮色模式</span>';
+  if(window._trendChart) updateChartColors();
+}
+
+/* ── NAV ────────────────────────────────────────────────── */
+const titles={'insurer':'客戶端保險 APP','wallet':'行動支付 APP','dashboard':'PCAF 後台儀表板'};
+function switchView(id,el){
+  document.querySelectorAll('.view').forEach(v=>{v.classList.remove('active')});
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const v=document.getElementById('view-'+id);
+  v.classList.add('active');
+  el.classList.add('active');
+  document.getElementById('topbarTitle').textContent=titles[id];
+  document.getElementById('exportTopBtn').style.display=id==='dashboard'?'inline-flex':'none';
+  if(id==='dashboard'&&!window._chartsBuilt) buildCharts();
+}
+
+/* ── LOGIN ANIMATION ────────────────────────────────────── */
+function fillAndLogin(code){
+  document.getElementById('otpField').value=code;
+  setTimeout(doLogin,300);
+}
+function doLogin(){
+  const otp=document.getElementById('otpField').value.trim();
+  if(otp.length<6){document.getElementById('otpField').style.borderColor='#ef4444';return;}
+  const login=document.getElementById('loginScreen');
+  const app=document.getElementById('appScreen');
+  login.style.transition='opacity .35s ease, transform .35s ease';
+  login.style.opacity='0';login.style.transform='translateY(-10px)';
+  setTimeout(()=>{
+    login.style.display='none';
+    app.style.display='block';
+    app.style.opacity='0';app.style.transform='translateY(10px)';
+    app.style.transition='opacity .35s ease,transform .35s ease';
+    setTimeout(()=>{app.style.opacity='1';app.style.transform='none'},20);
+  },350);
+}
+
+/* ── COUNTER ANIMATION ──────────────────────────────────── */
+function animateCounters(){
+  document.querySelectorAll('[data-target]').forEach(el=>{
+    const target=parseInt(el.dataset.target);
+    let current=0;
+    const step=Math.ceil(target/60);
+    const fmt=target>1000?v=>v.toLocaleString():v=>v;
+    const timer=setInterval(()=>{
+      current=Math.min(current+step,target);
+      el.textContent=fmt(current);
+      if(current>=target)clearInterval(timer);
+    },16);
+  });
+}
+
+/* ── CHARTS ─────────────────────────────────────────────── */
+function isDark(){return document.documentElement.getAttribute('data-theme')==='dark';}
+function gridColor(){return isDark()?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)';}
+function textColor(){return isDark()?'#8892a4':'#6b7280';}
+
+function buildCharts(){
+  window._chartsBuilt=true;
+  animateCounters();
+
+  const months=['1月','2月','3月','4月','5月','6月','7月','8月'];
+  const reductPct=[6,9,11,14,17,20,24,27];
+  const avoided=[18,28,36,46,61,79,98,120];
+  const ctx1=document.getElementById('trendChart').getContext('2d');
+  window._trendChart=new Chart(ctx1,{
+    data:{
+      labels:months,
+      datasets:[
+        {type:'bar',label:'里程下降 %',data:reductPct,
+          backgroundColor:'rgba(52,211,153,.25)',borderColor:'rgba(52,211,153,.7)',
+          borderWidth:1.5,borderRadius:6,yAxisID:'y'},
+        {type:'line',label:'避免排放 t CO₂e',data:avoided,
+          borderColor:'#22d3ee',backgroundColor:'rgba(34,211,238,.08)',
+          borderWidth:2.5,pointRadius:4,pointBackgroundColor:'#22d3ee',
+          fill:true,tension:.4,yAxisID:'y2'}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{labels:{color:textColor(),font:{size:11},boxWidth:12}}},
+      scales:{
+        x:{grid:{color:gridColor()},ticks:{color:textColor(),font:{size:11}}},
+        y:{grid:{color:gridColor()},ticks:{color:textColor(),font:{size:11}},
+          title:{display:true,text:'里程下降 %',color:textColor(),font:{size:10}}},
+        y2:{position:'right',grid:{display:false},
+          ticks:{color:textColor(),font:{size:11}},
+          title:{display:true,text:'避免排放 t',color:textColor(),font:{size:10}}}
+      }
+    }
+  });
+
+  const ctx2=document.getElementById('roiChart').getContext('2d');
+  window._roiChart=new Chart(ctx2,{
+    type:'doughnut',
+    data:{
+      labels:['理賠節省（3–5×）','點數發放成本','其他收益'],
+      datasets:[{
+        data:[62,25,13],
+        backgroundColor:['rgba(52,211,153,.8)','rgba(96,165,250,.8)','rgba(251,191,36,.8)'],
+        borderWidth:0,hoverOffset:6
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      cutout:'65%',
+      plugins:{
+        legend:{position:'bottom',labels:{color:textColor(),font:{size:11},boxWidth:12,padding:14}},
+        tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw}%`}}
+      }
+    }
+  });
+}
+
+function updateChartColors(){
+  if(!window._trendChart)return;
+  const gc=gridColor(),tc=textColor();
+  window._trendChart.options.scales.x.grid.color=gc;
+  window._trendChart.options.scales.x.ticks.color=tc;
+  window._trendChart.options.scales.y.grid.color=gc;
+  window._trendChart.options.scales.y.ticks.color=tc;
+  window._trendChart.options.scales.y2.ticks.color=tc;
+  window._trendChart.options.plugins.legend.labels.color=tc;
+  window._trendChart.update();
+  window._roiChart.options.plugins.legend.labels.color=tc;
+  window._roiChart.update();
+}
+
+/* ── CSV EXPORT ─────────────────────────────────────────── */
+function exportCSV(){
+  const rows=[
+    ['policy_id','holder','baseline_km','current_km','reduced_km','ef_kgco2e_km','iae_kgco2e','avoided_kgco2e','pcaf_level'],
+    ['AUTO-0001','王小綠',349,286,63,0.171,48.9,10.8,2],
+    ['AUTO-0002','林大明',402,331,71,0.171,56.6,12.1,2],
+    ['AUTO-0003','陳美惠',278,221,57,0.171,37.8,9.7,2],
+    ['AUTO-0004','黃俊豪',510,389,121,0.171,66.5,20.7,1],
+    ['AUTO-0005','張淑芬',320,270,50,0.171,46.2,8.6,2],
+  ].map(r=>r.join(',')).join('\n');
+  const blob=new Blob(['\uFEFF'+rows],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='PCAF_IAE_Report.csv';a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
